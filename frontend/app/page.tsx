@@ -17,7 +17,7 @@ export default function Home() {
         <Problem />
         <Solution />
         <HowItWorks />
-        <Roadmap />
+        {/* <Roadmap /> */}
         {/* <OpenSource /> */}
         {/* <Contributors /> */}
       </main>
