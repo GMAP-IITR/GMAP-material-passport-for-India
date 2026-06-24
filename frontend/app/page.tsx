@@ -3,9 +3,7 @@ import Hero from "@/components/sections/Hero";
 import Problem from "@/components/sections/Problem";
 import Solution from "@/components/sections/Solution";
 import HowItWorks from "@/components/sections/HowItWorks";
-import Roadmap from "@/components/sections/Roadmap";
-import OpenSource from "@/components/sections/OpenSource";
-import Contributors from "@/components/sections/Contributors";
+import UploadSection from "@/components/sections/UploadSection";
 import Footer from "@/components/sections/Footer";
 
 export default function Home() {
@@ -17,9 +15,7 @@ export default function Home() {
         <Problem />
         <Solution />
         <HowItWorks />
-        {/* <Roadmap /> */}
-        {/* <OpenSource /> */}
-        {/* <Contributors /> */}
+        <UploadSection />
       </main>
       <Footer />
     </>
