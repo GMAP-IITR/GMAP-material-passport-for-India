@@ -1,14 +1,14 @@
 import mongoose, { Schema, type Model } from 'mongoose';
 import type { IMaterialRecordDocument } from '../types';
 
-const MATERIAL_SOURCE_TYPES = ['dsr_boq', 'ifc', 'pdf', 'manual'] as const;
+const MATERIAL_SOURCE_TYPES = ['excel', 'dsr_boq', 'ifc', 'pdf', 'manual'] as const;
 
 const materialRecordSchema = new Schema<IMaterialRecordDocument>(
   {
     projectId: {
       type: Schema.Types.ObjectId,
       ref: 'Project',
-      required: [true, 'Project ID is required'],
+      default: null,
       index: true,
     },
     sourceType: {

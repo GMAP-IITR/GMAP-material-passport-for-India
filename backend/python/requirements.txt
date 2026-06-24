@@ -1,0 +1,29 @@
+# IFC → Material Passport Excel Converter
+# ----------------------------------------
+# Set up a virtual environment before installing:
+#
+#   python -m venv venv
+#
+#   # Activate (Windows):
+#   venv\Scripts\activate
+#
+#   # Activate (Linux / macOS):
+#   source venv/bin/activate
+#
+#   pip install -r requirements.txt
+#
+# After activation the Node.js backend auto-detects the venv python at
+#   backend/python/venv/Scripts/python.exe   (Windows)
+#   backend/python/venv/bin/python3          (Linux / macOS)
+# You can also override with: PYTHON_BIN=/path/to/python in backend/.env
+
+# ── Required ──────────────────────────────────────────────────────────────────
+ifcopenshell>=0.8.0
+openpyxl>=3.1.2
+numpy>=1.24.0
+trimesh>=4.0.0
+
+# ── Optional ──────────────────────────────────────────────────────────────────
+# Enables OpenCASCADE volume fallback for more accurate solid-geometry volumes.
+# Requires a C++ build environment; safe to skip — script degrades gracefully.
+# pythonocc-core>=7.7.0

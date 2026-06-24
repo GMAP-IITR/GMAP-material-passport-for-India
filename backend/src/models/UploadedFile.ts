@@ -46,6 +46,10 @@ const uploadedFileSchema = new Schema<IUploadedFileDocument>(
       type: Date,
       default: Date.now,
     },
+    generatedExcelPath: {
+      type: String,
+      trim: true,
+    },
   },
   {
     timestamps: false,

@@ -4,7 +4,7 @@ import type { Document, Types } from 'mongoose';
 
 export type SourceType = 'excel' | 'ifc' | 'pdf' | 'manual';
 export type FileType = 'excel' | 'ifc' | 'pdf';
-export type MaterialSourceType = 'dsr_boq' | 'ifc' | 'pdf' | 'manual';
+export type MaterialSourceType = 'excel' | 'dsr_boq' | 'ifc' | 'pdf' | 'manual';
 
 // ─── Project ─────────────────────────────────────────────────────────────────
 
@@ -29,6 +29,7 @@ export interface IUploadedFile {
   fileType: FileType;
   fileSize: number;
   uploadedAt: Date;
+  generatedExcelPath?: string;
 }
 
 export interface IUploadedFileDocument extends IUploadedFile, Document {}
@@ -44,7 +45,7 @@ export interface IUploadedFileDocument extends IUploadedFile, Document {}
 // Any column that doesn't map to a structured field is stored in `rawData`.
 
 export interface IMaterialRecord {
-  projectId: Types.ObjectId;
+  projectId?: Types.ObjectId;
   sourceType: MaterialSourceType;
   sourceFileId?: Types.ObjectId;
 
