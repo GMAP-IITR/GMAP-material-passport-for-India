@@ -160,3 +160,5 @@ export function convertIfcToExcel(
     });
   });
 }
+
+console.log('IFC processing service loaded.');

@@ -11,6 +11,8 @@ interface EnvConfig {
   UPLOAD_DIR: string;
   MAX_FILE_SIZE_MB: number;
   CORS_ORIGIN: string;
+  // Optional at startup — validated lazily when LLM normalization is first called.
+  ANTHROPIC_API_KEY: string;
   IS_PRODUCTION: boolean;
   IS_DEVELOPMENT: boolean;
 }
@@ -34,6 +36,7 @@ export const env: EnvConfig = {
   UPLOAD_DIR: optionalEnv('UPLOAD_DIR', 'uploads'),
   MAX_FILE_SIZE_MB: parseInt(optionalEnv('MAX_FILE_SIZE', '50'), 10),
   CORS_ORIGIN: optionalEnv('CORS_ORIGIN', 'http://localhost:3000'),
+  ANTHROPIC_API_KEY: optionalEnv('ANTHROPIC_API_KEY', ''),
   get IS_PRODUCTION() {
     return this.NODE_ENV === 'production';
   },

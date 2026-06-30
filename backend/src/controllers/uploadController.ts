@@ -9,6 +9,7 @@ import { UploadedFile } from '../models/UploadedFile';
 import { env } from '../config/env';
 import type { FileType } from '../types';
 import { parseExcelFile } from '../services/excelProcessingService';
+import { parseIfcExcelFile } from '../services/ifcExcelParsingService';
 import { mapExcelRows } from '../services/materialMappingService';
 import { insertMaterialRecords } from '../services/materialInsertionService';
 import { convertIfcToExcel } from '../services/ifcProcessingService';
@@ -60,7 +61,8 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response): Prom
     // Store the generated Excel path against the upload record
     await UploadedFile.findByIdAndUpdate(uploadRecord._id, { generatedExcelPath: generatedXlsxPath });
 
-    const { rows, headers, totalRows } = parseExcelFile(generatedXlsxPath);
+    console.log(`[upload] fileType: ifc | parser: parseIfcExcelFile | xlsx: ${generatedXlsxPath}`);
+    const { rows, headers, totalRows } = parseIfcExcelFile(generatedXlsxPath);
 
     if (totalRows === 0) {
       ApiResponse.success(
@@ -89,6 +91,7 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response): Prom
   }
 
   // ── 3. Excel: parse → map → insert ─────────────────────────────────────────
+  console.log(`[upload] fileType: ${fileType} | parser: parseExcelFile | path: ${uploadRecord.filePath}`);
   const { rows, headers, totalRows } = parseExcelFile(uploadRecord.filePath);
 
   if (totalRows === 0) {

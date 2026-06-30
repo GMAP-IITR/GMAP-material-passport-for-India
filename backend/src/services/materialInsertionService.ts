@@ -61,3 +61,5 @@ export async function insertMaterialRecords(
     throw err;
   }
 }
+
+console.log('Material insertion service loaded.');

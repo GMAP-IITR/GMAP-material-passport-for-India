@@ -261,3 +261,5 @@ export function mapExcelRows(
     return acc;
   }, []);
 }
+
+console.log('Excel mapping service loaded.');

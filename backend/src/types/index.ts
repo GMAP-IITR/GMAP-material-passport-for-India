@@ -1,5 +1,16 @@
 import type { Document, Types } from 'mongoose';
 
+export type {
+  ProcessingStatus,
+  IRawRecord,
+  IRawRecordDocument,
+  INormalizedMaterial,
+  INormalizedMaterialDocument,
+  ExtractedMaterial,
+  LlmExtractionResult,
+  NormalizationResult,
+} from './normalization';
+
 // ─── Shared Enums ────────────────────────────────────────────────────────────
 
 export type SourceType = 'excel' | 'ifc' | 'pdf' | 'manual';
