@@ -63,6 +63,7 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response): Prom
 
     console.log(`[upload] fileType: ifc | parser: parseIfcExcelFile | xlsx: ${generatedXlsxPath}`);
     const { rows, headers, totalRows } = parseIfcExcelFile(generatedXlsxPath);
+    console.log('STAGE 1 - PARSED IFC FIRST ROW', JSON.stringify(rows[0], null, 2));
 
     if (totalRows === 0) {
       ApiResponse.success(
@@ -73,6 +74,7 @@ export const uploadFile = asyncHandler(async (req: Request, res: Response): Prom
       return;
     }
 
+    console.log('STAGE 2 - ROW ENTERING MAPPER', JSON.stringify(rows[0], null, 2));
     const mappedRows = mapExcelRows(rows, headers);
 
     const recordsInserted = await insertMaterialRecords(mappedRows, {

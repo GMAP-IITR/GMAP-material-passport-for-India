@@ -47,8 +47,11 @@ export async function insertMaterialRecords(
     rawData: rawData ?? {},
   }));
 
+  console.log('STAGE 4 - DOCUMENT ENTERING MONGODB', JSON.stringify(docs[0], null, 2));
+
   try {
     const inserted = await MaterialRecord.insertMany(docs, { ordered: false });
+    console.log('STAGE 5 - INSERTED DOCUMENT', JSON.stringify(inserted[0], null, 2));
     return inserted.length;
   } catch (err: unknown) {
     // BulkWriteError: partial success — some docs were inserted

@@ -229,6 +229,7 @@ function mapRow(
     return null; // entirely empty row after coercion
   }
 
+  console.log('STAGE 3 - MAPPED ROW', JSON.stringify({ mapped, rawData }, null, 2));
   return { ...(mapped as Omit<MappedMaterialRow, 'rawData'>), rawData };
 }
 
