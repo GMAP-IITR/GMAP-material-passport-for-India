@@ -6,9 +6,14 @@ import type { MaterialSourceType } from '../../types';
 
 const LLM_MODEL = 'claude-opus-4-8';
 
-// Common DSR/BOQ column names (case-insensitive search is done at runtime)
+// ─── Column name candidates ───────────────────────────────────────────────────
+// Ordered by preference: BOQ-normalized fields first, then legacy column names.
+
 const DESCRIPTION_COLS = [
+  // BOQ pipeline outputs these standardized keys
+  'Full Description',   // includes parent + child context — preferred for LLM extraction
   'Description',
+  // Legacy / raw Excel column names
   'Item Description',
   'Work Item',
   'Item',
@@ -22,6 +27,8 @@ const UNIT_COLS     = ['Unit', 'UOM', 'Units'];
 const RATE_COLS     = ['Rate', 'Rate (₹)', 'Unit Rate'];
 const AMOUNT_COLS   = ['Amount', 'Amount (₹)', 'Total', 'Total Amount'];
 const DSR_CODE_COLS = ['DSR Code', 'Code', 'Item Code', 'Sr.No', 'S.No'];
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function pickCol(
   data: Record<string, unknown>,
@@ -52,29 +59,65 @@ function toStr(val: unknown): string | undefined {
   return s.length > 0 ? s : undefined;
 }
 
+// ─── Public API ───────────────────────────────────────────────────────────────
+
 /**
  * Normalises a single RawRecord from an Excel (DSR/BOQ) source.
- * Uses the Claude LLM to extract one or more materials from the description field.
- * Returns an array because one BOQ line can reference multiple distinct materials.
  *
- * If the LLM returns no materials (e.g. the line is a header or sub-total),
- * an empty array is returned — the caller should mark the raw record as
- * normalized=true with normalizedCount=0.
+ * When called after the BOQ pipeline the rawData already contains standardized
+ * keys (Description, Full Description, Quantity, Unit, Rate, Amount, DSR Code).
+ * When called on legacy raw records it falls back to case-insensitive column
+ * matching against common BOQ header names.
+ *
+ * Uses Claude LLM to extract one or more materials from the description field.
+ * Returns an empty array if the record has no description or yields no materials
+ * (e.g. the line is a header or sub-total row that slipped through).
  */
 export async function normalizeExcelRecord(
   rawRecord: IRawRecordDocument,
   sourceType: MaterialSourceType = 'excel',
 ): Promise<INormalizedMaterialDocument[]> {
+  console.log(
+    new Date().toISOString(),
+    `[normalizeExcelRecord] started | record: ${String(rawRecord._id)} | sourceType: ${sourceType}`,
+  );
+
   const d = rawRecord.rawData as Record<string, unknown>;
 
   const description = toStr(pickCol(d, DESCRIPTION_COLS));
 
-  // No meaningful description — skip LLM call
-  if (!description) return [];
+  if (!description) {
+    console.log(
+      new Date().toISOString(),
+      `[normalizeExcelRecord] no description found in record ${String(rawRecord._id)} — skipping LLM call`,
+    );
+    return [];
+  }
 
+  console.log(
+    new Date().toISOString(),
+    `[normalizeExcelRecord] description: "${description.slice(0, 120)}${description.length > 120 ? '…' : ''}"`,
+  );
+  console.log(
+    new Date().toISOString(),
+    `[normalizeExcelRecord] calling extractMaterialsFromDescription()...`,
+  );
+
+  const t0 = Date.now();
   const { materials } = await extractMaterialsFromDescription(description);
 
-  if (materials.length === 0) return [];
+  console.log(
+    new Date().toISOString(),
+    `[normalizeExcelRecord] extractMaterialsFromDescription() returned ${materials.length} material(s) in ${Date.now() - t0}ms`,
+  );
+
+  if (materials.length === 0) {
+    console.log(
+      new Date().toISOString(),
+      `[normalizeExcelRecord] no materials extracted — skipping save`,
+    );
+    return [];
+  }
 
   const quantity = toNumber(pickCol(d, QUANTITY_COLS));
   const unit     = toStr(pickCol(d, UNIT_COLS));
@@ -82,11 +125,16 @@ export async function normalizeExcelRecord(
   const amount   = toNumber(pickCol(d, AMOUNT_COLS));
   const dsrCode  = toStr(pickCol(d, DSR_CODE_COLS));
 
+  console.log(
+    new Date().toISOString(),
+    `[normalizeExcelRecord] saving ${materials.length} NormalizedMaterial doc(s)...`,
+  );
+
   const docs = await Promise.all(
     materials.map(async (mat) => {
       const doc = new NormalizedMaterial({
-        projectId:     rawRecord.projectId,
-        sourceFileId:  rawRecord.sourceFileId,
+        projectId:      rawRecord.projectId,
+        sourceFileId:   rawRecord.sourceFileId,
         sourceRecordId: rawRecord._id as Types.ObjectId,
         sourceType,
 
@@ -112,6 +160,11 @@ export async function normalizeExcelRecord(
       });
       return doc.save();
     }),
+  );
+
+  console.log(
+    new Date().toISOString(),
+    `[normalizeExcelRecord] saved ${docs.length} NormalizedMaterial doc(s) for record ${String(rawRecord._id)}`,
   );
 
   return docs;
